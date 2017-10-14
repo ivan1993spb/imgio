@@ -21,7 +21,7 @@ func NewSimplePointsSequenceGenerator(rect image.Rectangle) *SimplePointsSequenc
 func (spsg *SimplePointsSequenceGenerator) Current() image.Point {
 	p := image.Point{}
 	p.X = int(spsg.cursor % uint64(spsg.rect.Size().Y))
-	p.Y = int((spsg.cursor - uint64(p.X)) / uint64(spsg.rect.Size().X))
+	p.Y = int((spsg.cursor - uint64(p.X)) / uint64(spsg.rect.Size().Y))
 	return spsg.rect.Min.Add(p)
 }
 
