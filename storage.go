@@ -2,9 +2,6 @@ package imgio
 
 import (
 	"image/draw"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"io"
 )
 
