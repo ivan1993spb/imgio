@@ -23,6 +23,28 @@ func Test_SimplePointsSequenceGenerator_Valid_RetursFalse(t *testing.T) {
 	require.False(t, g.Valid())
 }
 
+func Test_SimplePointsSequenceGenerator_Next_IncrementsCursor(t *testing.T) {
+	g := &SimplePointsSequenceGenerator{
+		rect:   image.Rectangle{},
+		cursor: 0,
+	}
+
+	for i := uint64(0); i < 10; i++ {
+		require.Equal(t, i, g.cursor)
+		g.Next()
+	}
+}
+
+func Test_SimplePointsSequenceGenerator_Rewind_ResetsCursor(t *testing.T) {
+	g := &SimplePointsSequenceGenerator{
+		rect:   image.Rectangle{},
+		cursor: 10,
+	}
+
+	g.Rewind()
+	require.Equal(t, uint64(0), g.cursor)
+}
+
 func Test_SimplePointsSequenceGenerator_Current_ReturnsValidCoordinatesByIndex(t *testing.T) {
 	g := &SimplePointsSequenceGenerator{
 		rect:   image.Rect(-5, -5, 1, 1),

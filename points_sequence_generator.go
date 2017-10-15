@@ -15,7 +15,10 @@ type SimplePointsSequenceGenerator struct {
 }
 
 func NewSimplePointsSequenceGenerator(rect image.Rectangle) *SimplePointsSequenceGenerator {
-	return &SimplePointsSequenceGenerator{rect, 0}
+	return &SimplePointsSequenceGenerator{
+		rect:   rect,
+		cursor: 0,
+	}
 }
 
 func (spsg *SimplePointsSequenceGenerator) Current() image.Point {
