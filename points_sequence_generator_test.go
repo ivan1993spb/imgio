@@ -63,3 +63,16 @@ func Test_SimplePointsSequenceGenerator_Current_ReturnsValidCoordinatesByIndex(t
 		require.Equal(t, point, g.Current())
 	}
 }
+
+func Test_SimplePointsSequenceGenerator_Seek(t *testing.T) {
+	g := &SimplePointsSequenceGenerator{
+		cursor: 0,
+	}
+
+	tests := []uint64{2, 3, 4, 2, 3, 4, 7, 2}
+
+	for _, offset := range tests {
+		g.Seek(offset)
+		require.Equal(t, offset, g.cursor)
+	}
+}

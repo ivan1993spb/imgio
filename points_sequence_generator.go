@@ -7,6 +7,7 @@ type PointsSequenceGenerator interface {
 	Next()
 	Rewind()
 	Valid() bool
+	Seek(offset uint64)
 }
 
 type SimplePointsSequenceGenerator struct {
@@ -38,4 +39,8 @@ func (spsg *SimplePointsSequenceGenerator) Rewind() {
 
 func (spsg *SimplePointsSequenceGenerator) Valid() bool {
 	return spsg.cursor < uint64(spsg.rect.Size().X*spsg.rect.Size().Y)
+}
+
+func (spsg *SimplePointsSequenceGenerator) Seek(offset uint64) {
+	spsg.cursor = offset
 }

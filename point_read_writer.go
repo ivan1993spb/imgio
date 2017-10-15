@@ -1,68 +1,60 @@
 package imgio
 
 import (
-	"errors"
 	"image"
 	"image/color"
 )
 
 type PointReadWriter interface {
-	// Read reads bytes from color c on point p
-	Read(c color.Color, p image.Point) ([]byte, int)
-	// Write writes bytes b into color c on point p and returns number of written bytes
-	Write(b []byte, c color.Color, p image.Point) (color.Color, int, error)
+	// Read reads bytes from color c from position start on point p
+	Read(start int, c color.Color, p image.Point) ([]byte, int)
+	// Write writes bytes b into color c starts on position start on point p and returns number of written bytes
+	Write(b []byte, start int, c color.Color, p image.Point) (color.Color, int)
 	// Return number of bytes possible to be written to point p on current image
 	Size(p image.Point) int64
 }
 
+const SimplePointCapacity = 4
+
 type SimplePointReadWriter struct{}
 
-func (SimplePointReadWriter) Read(c color.Color, p image.Point) ([]byte, int) {
-	buff := make([]byte, 4)
+func (SimplePointReadWriter) Read(start int, c color.Color, p image.Point) ([]byte, int) {
+	if start >= SimplePointCapacity {
+		return []byte{}, 0
+	}
+
+	buff := make([]byte, SimplePointCapacity-start)
 	r, g, b, a := c.RGBA()
+	data := []uint32{r, g, b, a}
 
-	buff[0] = byte(r)
-	buff[1] = byte(g)
-	buff[2] = byte(b)
-	buff[3] = byte(a)
+	n := 0
+	for i, v := range data[start:] {
+		buff[i] = byte(v)
+		n++
+	}
 
-	return buff, 4
+	return buff, n
 }
 
-func (SimplePointReadWriter) Write(b []byte, _ color.Color, _ image.Point) (color.Color, int, error) {
-	c := &color.RGBA{}
+func (SimplePointReadWriter) Write(b []byte, start int, src color.Color, p image.Point) (color.Color, int) {
+	srcR, srcG, srcB, srcA := src.RGBA()
+	c := &color.RGBA{byte(srcR), byte(srcG), byte(srcB), byte(srcA)}
 
-	if len(b) > 0 {
-		c.R = b[0]
-	} else {
-		return c, 0, nil
+	if start >= SimplePointCapacity {
+		return c, 0
 	}
 
-	if len(b) > 1 {
-		c.G = b[1]
-	} else {
-		return c, 1, nil
+	addrs := []*uint8{&c.R, &c.G, &c.B, &c.A}
+
+	n := 0
+	for i, addr := range addrs[start:] {
+		*addr = b[i]
+		n++
 	}
 
-	if len(b) > 2 {
-		c.B = b[2]
-	} else {
-		return c, 2, nil
-	}
-
-	if len(b) > 3 {
-		c.A = b[3]
-	} else {
-		return c, 3, nil
-	}
-
-	if len(b) > 4 {
-		return c, 4, errors.New("overflow")
-	}
-
-	return c, 4, nil
+	return c, n
 }
 
-func (SimplePointReadWriter) Size(p image.Point) int64 {
-	return 4
+func (SimplePointReadWriter) Size(_ image.Point) int64 {
+	return SimplePointCapacity
 }
