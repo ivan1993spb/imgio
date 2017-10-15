@@ -1,6 +1,9 @@
 package imgio
 
-import "image"
+import (
+	"image"
+	"sync/atomic"
+)
 
 type PointsSequenceGenerator interface {
 	Current() image.Point
@@ -24,17 +27,18 @@ func NewSimplePointsSequenceGenerator(rect image.Rectangle) *SimplePointsSequenc
 
 func (spsg *SimplePointsSequenceGenerator) Current() image.Point {
 	p := image.Point{}
-	p.X = int(spsg.cursor % uint64(spsg.rect.Size().Y))
-	p.Y = int((spsg.cursor - uint64(p.X)) / uint64(spsg.rect.Size().Y))
+	cursor := atomic.LoadUint64(&spsg.cursor)
+	p.X = int(cursor % uint64(spsg.rect.Size().Y))
+	p.Y = int((cursor - uint64(p.X)) / uint64(spsg.rect.Size().Y))
 	return spsg.rect.Min.Add(p)
 }
 
 func (spsg *SimplePointsSequenceGenerator) Next() {
-	spsg.cursor++
+	atomic.AddUint64(&spsg.cursor, 1)
 }
 
 func (spsg *SimplePointsSequenceGenerator) Rewind() {
-	spsg.cursor = 0
+	atomic.StoreUint64(&spsg.cursor, 0)
 }
 
 func (spsg *SimplePointsSequenceGenerator) Valid() bool {
@@ -42,5 +46,5 @@ func (spsg *SimplePointsSequenceGenerator) Valid() bool {
 }
 
 func (spsg *SimplePointsSequenceGenerator) Seek(offset uint64) {
-	spsg.cursor = offset
+	atomic.StoreUint64(&spsg.cursor, offset)
 }
