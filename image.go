@@ -104,6 +104,10 @@ func (f *Image) Write(p []byte) (n int, err error) {
 	return
 }
 
+func (i *Image) Seek(offset int64, whence int) (int64, error) {
+	return 0, nil
+}
+
 func (s *Image) Size() (size int64) {
 	s.gen.Rewind()
 	for s.gen.Valid() {
