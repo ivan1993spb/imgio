@@ -3,7 +3,6 @@ package imgio
 import (
 	"image"
 	"image/color"
-	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -50,8 +49,10 @@ func Test_Image_Read(t *testing.T) {
 	img.img.Set(1, 0, &color.RGBA{0, 't', 0, 'i'})
 	img.img.Set(2, 0, &color.RGBA{'n', 'g', 0, 0})
 
-	b, err := ioutil.ReadAll(img)
-	b = b[:12]
-	require.Nil(t, err, "Cannot read all from img")
-	require.Equal(t, []byte{0, 't', 'e', 's', 0, 't', 0, 'i', 'n', 'g', 0, 0}, b)
+	size := 12
+	buff := make([]byte, size)
+	n, err := img.Read(buff)
+	require.Nil(t, err, "Cannot read from img")
+	require.Equal(t, size, n)
+	require.Equal(t, []byte{0, 't', 'e', 's', 0, 't', 0, 'i', 'n', 'g', 0, 0}, buff)
 }
