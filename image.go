@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type File struct {
+type Image struct {
 	img draw.Image
 	gen PointsSequenceGenerator
 	prw PointReadWriter
@@ -17,8 +17,8 @@ type File struct {
 	byteCursor  int
 }
 
-func NewFile(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) *File {
-	return &File{
+func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) *Image {
+	return &Image{
 		img: img,
 		gen: gen,
 		prw: prw,
@@ -26,7 +26,7 @@ func NewFile(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) *
 }
 
 // Read implements io.Reader interface
-func (f *File) Read(p []byte) (n int, err error) {
+func (f *Image) Read(p []byte) (n int, err error) {
 	f.mux.RLock()
 	defer f.mux.RUnlock()
 
@@ -71,7 +71,7 @@ func (f *File) Read(p []byte) (n int, err error) {
 }
 
 // Write implements io.Writer interface
-func (f *File) Write(p []byte) (n int, err error) {
+func (f *Image) Write(p []byte) (n int, err error) {
 	if len(p) == 0 {
 		return 0, nil
 	}
@@ -106,7 +106,7 @@ func (f *File) Write(p []byte) (n int, err error) {
 	return
 }
 
-func (s *File) Size() (size int64) {
+func (s *Image) Size() (size int64) {
 	s.gen.Rewind()
 	for s.gen.Valid() {
 		point := s.gen.Current()
