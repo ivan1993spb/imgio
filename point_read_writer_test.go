@@ -45,6 +45,9 @@ func Test_SimplePointReadWriter_Write(t *testing.T) {
 		{[]byte{'a', 'b', 'c', 'd'}, 2, color.RGBA{R: 'a'}, image.Point{}, &color.RGBA{'a', 0, 'a', 'b'}, 2},
 		{[]byte{'a', 'b', 'c', 'd'}, 2, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'e', 'f', 'a', 'b'}, 2},
 		{[]byte{'a', 'b', 'c', 'd'}, 4, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'e', 'f', 'g', 'h'}, 0},
+		{[]byte{'a', 'b', 'c', 'd', 'e', 'f'}, 0, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'a', 'b', 'c', 'd'}, 4},
+		{[]byte{'a'}, 0, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'a', 'f', 'g', 'h'}, 1},
+		{[]byte{'i'}, 2, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'e', 'f', 'i', 'h'}, 1},
 	}
 
 	for _, test := range tests {

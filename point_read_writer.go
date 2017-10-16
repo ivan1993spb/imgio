@@ -48,6 +48,9 @@ func (SimplePointReadWriter) Write(b []byte, start int, src color.Color, p image
 
 	n := 0
 	for i, addr := range addrs[start:] {
+		if i >= len(b) {
+			break
+		}
 		*addr = b[i]
 		n++
 	}
