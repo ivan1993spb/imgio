@@ -35,6 +35,21 @@ func Test_Image_Write(t *testing.T) {
 	require.Equal(t, byte(0), byte(a2))
 }
 
+func Test_Image_Write_ErrOverflow(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA(image.Rect(0, 0, 1, 1)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 1, 1),
+			cursor: 0,
+		},
+		prw: SimplePointReadWriter{},
+	}
+
+	n, err := img.Write([]byte("testing"))
+	require.Equal(t, 4, n)
+	require.Equal(t, ErrOverflow, err)
+}
+
 func Test_Image_Read(t *testing.T) {
 	img := &Image{
 		img: image.NewRGBA(image.Rect(0, 0, 5, 5)),
