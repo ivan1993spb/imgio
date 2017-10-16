@@ -69,6 +69,8 @@ func (i *Image) Read(p []byte) (n int, err error) {
 	return
 }
 
+var ErrOverflow = errors.New("Overflow")
+
 // Write implements io.Writer interface
 func (i *Image) Write(p []byte) (n int, err error) {
 	if len(p) == 0 {
@@ -82,7 +84,7 @@ func (i *Image) Write(p []byte) (n int, err error) {
 
 	for {
 		if !i.gen.Valid() {
-			return n, errors.New("overflow")
+			return n, ErrOverflow
 		}
 		if len(p) == 0 {
 			return n, nil
