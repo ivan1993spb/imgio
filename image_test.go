@@ -1,7 +1,6 @@
 package imgio
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"io/ioutil"
@@ -20,7 +19,9 @@ func Test_Image_Write(t *testing.T) {
 		prw: SimplePointReadWriter{},
 	}
 
-	fmt.Fprint(img, "testing")
+	n, err := img.Write([]byte("testing"))
+	require.Equal(t, 7, n)
+	require.Nil(t, err)
 
 	r1, g1, b1, a1 := img.img.At(0, 0).RGBA()
 	r2, g2, b2, a2 := img.img.At(1, 0).RGBA()
