@@ -51,7 +51,7 @@ func (i *Image) Read(p []byte) (n int, err error) {
 		color := i.img.At(point.X, point.Y)
 		buff, nBytesRead := i.prw.Read(i.byteCursor, color, point)
 
-		if len(p)-n > nBytesRead {
+		if len(p)-n >= nBytesRead {
 			copy(p[n:], buff[:nBytesRead])
 			n += nBytesRead
 			i.gen.Next()
