@@ -26,13 +26,13 @@ func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) 
 }
 
 // Read implements io.Reader interface
-func (f *Image) Read(p []byte) (n int, err error) {
-	f.mux.RLock()
-	defer f.mux.RUnlock()
+func (i *Image) Read(p []byte) (n int, err error) {
+	i.mux.RLock()
+	defer i.mux.RUnlock()
 
-	f.gen.Seek(f.pointCursor)
+	i.gen.Seek(i.pointCursor)
 
-	if !f.gen.Valid() {
+	if !i.gen.Valid() {
 		return 0, io.EOF
 	}
 	if len(p) == 0 {
@@ -40,28 +40,28 @@ func (f *Image) Read(p []byte) (n int, err error) {
 	}
 
 	for {
-		if !f.gen.Valid() {
+		if !i.gen.Valid() {
 			return n, io.EOF
 		}
 		if n >= len(p) {
 			return
 		}
 
-		point := f.gen.Current()
-		color := f.img.At(point.X, point.Y)
-		buff, nBytesRead := f.prw.Read(f.byteCursor, color, point)
+		point := i.gen.Current()
+		color := i.img.At(point.X, point.Y)
+		buff, nBytesRead := i.prw.Read(i.byteCursor, color, point)
 
 		if len(p)-n > nBytesRead {
 			copy(p[n:], buff[:nBytesRead])
 			n += nBytesRead
-			f.gen.Next()
-			f.pointCursor++
-			f.byteCursor = 0
+			i.gen.Next()
+			i.pointCursor++
+			i.byteCursor = 0
 		} else {
 			end := nBytesRead - len(p) + n
 			copy(p[n:], buff[:end])
 			n += end
-			f.byteCursor = end + 1
+			i.byteCursor = end + 1
 			return
 		}
 	}
@@ -70,34 +70,34 @@ func (f *Image) Read(p []byte) (n int, err error) {
 }
 
 // Write implements io.Writer interface
-func (f *Image) Write(p []byte) (n int, err error) {
+func (i *Image) Write(p []byte) (n int, err error) {
 	if len(p) == 0 {
 		return 0, nil
 	}
 
-	f.mux.Lock()
-	defer f.mux.Unlock()
+	i.mux.Lock()
+	defer i.mux.Unlock()
 
-	f.gen.Seek(f.pointCursor)
+	i.gen.Seek(i.pointCursor)
 
 	for {
-		if !f.gen.Valid() {
+		if !i.gen.Valid() {
 			return n, errors.New("overflow")
 		}
 		if len(p) == 0 {
 			return n, nil
 		}
 
-		point := f.gen.Current()
-		srcColor := f.img.At(point.X, point.Y)
-		color, writtenBytes := f.prw.Write(p, f.byteCursor, srcColor, point)
-		f.img.Set(point.X, point.Y, color)
-		f.gen.Next()
-		f.pointCursor++
+		point := i.gen.Current()
+		srcColor := i.img.At(point.X, point.Y)
+		color, writtenBytes := i.prw.Write(p, i.byteCursor, srcColor, point)
+		i.img.Set(point.X, point.Y, color)
+		i.gen.Next()
+		i.pointCursor++
 		n += writtenBytes
 		p = p[writtenBytes:]
-		if f.prw.Size(point) > int64(writtenBytes) {
-			f.byteCursor = writtenBytes + 1
+		if i.prw.Size(point) > int64(writtenBytes) {
+			i.byteCursor = writtenBytes + 1
 		}
 	}
 
@@ -108,12 +108,12 @@ func (i *Image) Seek(offset int64, whence int) (int64, error) {
 	return 0, nil
 }
 
-func (s *Image) Size() (size int64) {
-	s.gen.Rewind()
-	for s.gen.Valid() {
-		point := s.gen.Current()
-		size += s.prw.Size(point)
-		s.gen.Next()
+func (i *Image) Size() (size int64) {
+	i.gen.Rewind()
+	for i.gen.Valid() {
+		point := i.gen.Current()
+		size += i.prw.Size(point)
+		i.gen.Next()
 	}
 	return
 }
