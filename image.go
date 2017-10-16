@@ -44,7 +44,7 @@ func (f *Image) Read(p []byte) (n int, err error) {
 			return n, io.EOF
 		}
 		if n >= len(p) {
-			break
+			return
 		}
 
 		point := f.gen.Current()
@@ -54,7 +54,6 @@ func (f *Image) Read(p []byte) (n int, err error) {
 		if len(p)-n > nBytesRead {
 			copy(p[n:], buff[:nBytesRead])
 			n += nBytesRead
-
 			f.gen.Next()
 			f.pointCursor++
 			f.byteCursor = 0
@@ -63,7 +62,7 @@ func (f *Image) Read(p []byte) (n int, err error) {
 			copy(p[n:], buff[:end])
 			n += end
 			f.byteCursor = end + 1
-			break
+			return
 		}
 	}
 
@@ -81,10 +80,6 @@ func (f *Image) Write(p []byte) (n int, err error) {
 
 	f.gen.Seek(f.pointCursor)
 
-	if !f.gen.Valid() {
-		return 0, errors.New("overflow")
-	}
-
 	for {
 		if !f.gen.Valid() {
 			return n, errors.New("overflow")
@@ -101,6 +96,9 @@ func (f *Image) Write(p []byte) (n int, err error) {
 		f.pointCursor++
 		n += writtenBytes
 		p = p[writtenBytes:]
+		if f.prw.Size(point) > int64(writtenBytes) {
+			f.byteCursor = writtenBytes + 1
+		}
 	}
 
 	return
