@@ -15,7 +15,7 @@ func Test_Image_Write(t *testing.T) {
 			rect:   image.Rect(0, 0, 5, 5),
 			cursor: 0,
 		},
-		prw: SimplePointReadWriter{},
+		prw: SimplePoint32ReadWriter{},
 	}
 
 	n, err := img.Write([]byte("testing"))
@@ -42,7 +42,7 @@ func Test_Image_Write_ErrOverflow(t *testing.T) {
 			rect:   image.Rect(0, 0, 1, 1),
 			cursor: 0,
 		},
-		prw: SimplePointReadWriter{},
+		prw: SimplePoint32ReadWriter{},
 	}
 
 	n, err := img.Write([]byte("testing"))
@@ -57,7 +57,7 @@ func Test_Image_Read(t *testing.T) {
 			rect:   image.Rect(0, 0, 5, 5),
 			cursor: 0,
 		},
-		prw: SimplePointReadWriter{},
+		prw: SimplePoint32ReadWriter{},
 	}
 
 	img.img.Set(0, 0, &color.RGBA{0, 't', 'e', 's'})
