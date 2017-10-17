@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_Image_Write(t *testing.T) {
+func Test_Image_Write_UsePoint32(t *testing.T) {
 	img := &Image{
 		img: image.NewRGBA(image.Rect(0, 0, 5, 5)),
 		gen: &SimplePointsSequenceGenerator{
@@ -35,7 +35,34 @@ func Test_Image_Write(t *testing.T) {
 	require.Equal(t, byte(0), byte(a2))
 }
 
-func Test_Image_Write_ErrOverflow(t *testing.T) {
+func Test_Image_Write_UsePoint64(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA64(image.Rect(0, 0, 5, 5)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 5, 5),
+			cursor: 0,
+		},
+		prw: SimplePoint64ReadWriter{},
+	}
+
+	n, err := img.Write([]byte("testing"))
+	require.Equal(t, 7, n)
+	require.Nil(t, err)
+
+	r1, g1, b1, a1 := img.img.At(0, 0).RGBA()
+	r2, g2, b2, a2 := img.img.At(1, 0).RGBA()
+
+	require.Equal(t, uint32('t'>>8+'e'), r1)
+	require.Equal(t, uint32('s'>>8+'t'), g1)
+	require.Equal(t, uint32('i'>>8+'n'), b1)
+	require.Equal(t, uint32('g'>>8), a1)
+	require.Equal(t, uint32(0), r2)
+	require.Equal(t, uint32(0), g2)
+	require.Equal(t, uint32(0), b2)
+	require.Equal(t, uint32(0), a2)
+}
+
+func Test_Image_Write_UsePoint32_ErrOverflow(t *testing.T) {
 	img := &Image{
 		img: image.NewRGBA(image.Rect(0, 0, 1, 1)),
 		gen: &SimplePointsSequenceGenerator{
@@ -50,7 +77,22 @@ func Test_Image_Write_ErrOverflow(t *testing.T) {
 	require.Equal(t, ErrOverflow, err)
 }
 
-func Test_Image_Read(t *testing.T) {
+func Test_Image_Write_UsePoint64_ErrOverflow(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA64(image.Rect(0, 0, 1, 1)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 1, 1),
+			cursor: 0,
+		},
+		prw: SimplePoint64ReadWriter{},
+	}
+
+	n, err := img.Write([]byte("testing 12345678"))
+	require.Equal(t, 8, n)
+	require.Equal(t, ErrOverflow, err)
+}
+
+func Test_Image_Read_UsePoint32(t *testing.T) {
 	img := &Image{
 		img: image.NewRGBA(image.Rect(0, 0, 5, 5)),
 		gen: &SimplePointsSequenceGenerator{
@@ -70,4 +112,30 @@ func Test_Image_Read(t *testing.T) {
 	require.Nil(t, err, "Cannot read from img")
 	require.Equal(t, size, n)
 	require.Equal(t, []byte{0, 't', 'e', 's', 0, 't', 0, 'i', 'n', 'g', 0, 0}, buff)
+}
+
+func Test_Image_Read_UsePoint64(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA64(image.Rect(0, 0, 5, 5)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 5, 5),
+			cursor: 0,
+		},
+		prw: SimplePoint64ReadWriter{},
+	}
+
+	img.img.Set(0, 0, &color.RGBA64{0, 't' << 8, 'e', 's'})
+	img.img.Set(1, 0, &color.RGBA64{0, 't' << 8, 0, 'i'})
+	img.img.Set(2, 0, &color.RGBA64{'n', 'g', 'o'<<8 + 'k', 'e'<<8 + 'y'})
+
+	size := 24
+	buff := make([]byte, size)
+	n, err := img.Read(buff)
+	require.Nil(t, err, "Cannot read from img")
+	require.Equal(t, size, n)
+	require.Equal(t, []byte{
+		0, 0, 't', 0, 0, 'e', 0, 's',
+		0, 0, 't', 0, 0, 0, 0, 'i',
+		0, 'n', 0, 'g', 'o', 'k', 'e', 'y',
+	}, buff)
 }
