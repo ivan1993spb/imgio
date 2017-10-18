@@ -2,6 +2,8 @@ package imgio
 
 import (
 	"errors"
+	"image"
+	"image/color"
 	"image/draw"
 	"io"
 	"sync"
@@ -121,4 +123,19 @@ func (i *Image) Size() (size int64) {
 		i.gen.Next()
 	}
 	return
+}
+
+// ColorModel implements image.Image interface
+func (i *Image) ColorModel() color.Model {
+	return i.img.ColorModel()
+}
+
+// Bounds implements image.Image interface
+func (i *Image) Bounds() image.Rectangle {
+	return i.img.Bounds()
+}
+
+// At  implements image.Image interface
+func (i *Image) At(x, y int) color.Color {
+	return i.img.At(x, y)
 }
