@@ -84,7 +84,7 @@ func (i *Image) Write(p []byte) (n int, err error) {
 
 	i.gen.Seek(i.pointCursor)
 	if !i.gen.Valid() {
-		return n, io.EOF
+		return 0, ErrOverflow
 	}
 
 	for {
