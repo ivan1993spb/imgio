@@ -245,3 +245,45 @@ func Test_Image_ReadWrite64_Hash(t *testing.T) {
 	secondSum := hasher.Sum(nil)
 	require.Equal(t, firstSum, secondSum)
 }
+
+func WriteBytesToImage64(x0, y0, x1, y1 int) (int64, error) {
+	img := &Image{
+		img: image.NewRGBA64(image.Rect(x0, y0, x1, y1)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(x0, y0, x1, y1),
+			cursor: 0,
+		},
+		prw: SimplePoint64ReadWriter{},
+	}
+	return io.CopyN(img, rand.Reader, img.Size())
+}
+
+func Benchmark_WriteBytesToImage64(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		_, err := WriteBytesToImage64(0, 0, 1000, 1000)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func WriteBytesToImage32(x0, y0, x1, y1 int) (int64, error) {
+	img := &Image{
+		img: image.NewRGBA(image.Rect(x0, y0, x1, y1)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(x0, y0, x1, y1),
+			cursor: 0,
+		},
+		prw: SimplePoint32ReadWriter{},
+	}
+	return io.CopyN(img, rand.Reader, img.Size())
+}
+
+func Benchmark_WriteBytesToImage32(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		_, err := WriteBytesToImage32(0, 0, 1000, 1000)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
