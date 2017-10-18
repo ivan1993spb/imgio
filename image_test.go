@@ -1,8 +1,12 @@
 package imgio
 
 import (
+	"bytes"
+	"crypto/md5"
+	"crypto/rand"
 	"image"
 	"image/color"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -138,4 +142,64 @@ func Test_Image_Read_UsePoint64(t *testing.T) {
 		0, 0, 't', 0, 0, 0, 0, 'i',
 		0, 'n', 0, 'g', 'o', 'k', 'e', 'y',
 	}, buff)
+}
+
+func Test_Image_ReadWrite32_Hash(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA(image.Rect(0, 0, 100, 100)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 100, 100),
+			cursor: 0,
+		},
+		prw: SimplePoint32ReadWriter{},
+	}
+	hasher := md5.New()
+	buff := bytes.NewBuffer(nil)
+	n, err := buff.ReadFrom(io.TeeReader(io.LimitReader(rand.Reader, img.Size()), hasher))
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	firstSum := hasher.Sum(nil)
+	hasher.Reset()
+	n, err = buff.WriteTo(img)
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	img.gen.Rewind()
+	img.pointCursor = 0
+	img.byteCursor = 0
+	require.True(t, img.gen.Valid())
+	n, err = io.Copy(hasher, img)
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	secondSum := hasher.Sum(nil)
+	require.Equal(t, firstSum, secondSum)
+}
+
+func Test_Image_ReadWrite64_Hash(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA64(image.Rect(0, 0, 100, 100)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 100, 100),
+			cursor: 0,
+		},
+		prw: SimplePoint64ReadWriter{},
+	}
+	hasher := md5.New()
+	buff := bytes.NewBuffer(nil)
+	n, err := buff.ReadFrom(io.TeeReader(io.LimitReader(rand.Reader, img.Size()), hasher))
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	firstSum := hasher.Sum(nil)
+	hasher.Reset()
+	n, err = buff.WriteTo(img)
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	img.gen.Rewind()
+	img.pointCursor = 0
+	img.byteCursor = 0
+	require.True(t, img.gen.Valid())
+	n, err = io.Copy(hasher, img)
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	secondSum := hasher.Sum(nil)
+	require.Equal(t, firstSum, secondSum)
 }
