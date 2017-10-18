@@ -39,6 +39,42 @@ func Test_Image_Write_UsePoint32(t *testing.T) {
 	require.Equal(t, byte(0), byte(a2))
 }
 
+func Test_Image_Write_UsePoint32HandleErrOverflowOnePoint(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA(image.Rect(0, 0, 1, 1)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 1, 1),
+			cursor: 0,
+		},
+		prw: SimplePoint32ReadWriter{},
+	}
+
+	n, err := img.Write([]byte("testing"))
+	require.Equal(t, 4, n)
+	require.Equal(t, ErrOverflow, err)
+}
+
+func Test_Image_Write_UsePoint32HandleErrOverflowManyPoints(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA(image.Rect(0, 0, 10, 10)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 10, 10),
+			cursor: 0,
+		},
+		prw: SimplePoint32ReadWriter{},
+	}
+
+	size := img.Size() * 2
+	buff := make([]byte, size)
+	n, err := rand.Reader.Read(buff)
+	require.Equal(t, size, int64(n))
+	require.Nil(t, err)
+
+	n, err = img.Write(buff)
+	require.Equal(t, img.Size(), int64(n))
+	require.Equal(t, ErrOverflow, err)
+}
+
 func Test_Image_Write_UsePoint64(t *testing.T) {
 	img := &Image{
 		img: image.NewRGBA64(image.Rect(0, 0, 5, 5)),
@@ -66,22 +102,7 @@ func Test_Image_Write_UsePoint64(t *testing.T) {
 	require.Equal(t, uint32(0), a2)
 }
 
-func Test_Image_Write_UsePoint32_ErrOverflow(t *testing.T) {
-	img := &Image{
-		img: image.NewRGBA(image.Rect(0, 0, 1, 1)),
-		gen: &SimplePointsSequenceGenerator{
-			rect:   image.Rect(0, 0, 1, 1),
-			cursor: 0,
-		},
-		prw: SimplePoint32ReadWriter{},
-	}
-
-	n, err := img.Write([]byte("testing"))
-	require.Equal(t, 4, n)
-	require.Equal(t, ErrOverflow, err)
-}
-
-func Test_Image_Write_UsePoint64_ErrOverflow(t *testing.T) {
+func Test_Image_Write_UsePoint64_ErrOverflowOnePoint(t *testing.T) {
 	img := &Image{
 		img: image.NewRGBA64(image.Rect(0, 0, 1, 1)),
 		gen: &SimplePointsSequenceGenerator{
@@ -93,6 +114,27 @@ func Test_Image_Write_UsePoint64_ErrOverflow(t *testing.T) {
 
 	n, err := img.Write([]byte("testing 12345678"))
 	require.Equal(t, 8, n)
+	require.Equal(t, ErrOverflow, err)
+}
+
+func Test_Image_Write_UsePoint64HandleErrOverflowManyPoints(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA64(image.Rect(0, 0, 10, 10)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 10, 10),
+			cursor: 0,
+		},
+		prw: SimplePoint64ReadWriter{},
+	}
+
+	size := img.Size() * 2
+	buff := make([]byte, size)
+	n, err := rand.Reader.Read(buff)
+	require.Equal(t, size, int64(n))
+	require.Nil(t, err)
+
+	n, err = img.Write(buff)
+	require.Equal(t, img.Size(), int64(n))
 	require.Equal(t, ErrOverflow, err)
 }
 
