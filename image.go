@@ -29,12 +29,12 @@ func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) 
 func (i *Image) Read(p []byte) (n int, err error) {
 	i.mux.RLock()
 	defer i.mux.RUnlock()
-
 	i.gen.Seek(i.pointCursor)
 
 	if !i.gen.Valid() {
 		return 0, io.EOF
 	}
+
 	if len(p) == 0 {
 		return 0, nil
 	}
@@ -81,13 +81,16 @@ func (i *Image) Write(p []byte) (n int, err error) {
 	defer i.mux.Unlock()
 
 	i.gen.Seek(i.pointCursor)
+	if !i.gen.Valid() {
+		return n, io.EOF
+	}
 
 	for {
-		if !i.gen.Valid() {
-			return n, ErrOverflow
-		}
 		if len(p) == 0 {
 			return n, nil
+		}
+		if !i.gen.Valid() {
+			return n, ErrOverflow
 		}
 
 		point := i.gen.Current()
