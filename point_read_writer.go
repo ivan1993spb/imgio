@@ -109,22 +109,23 @@ func (SimplePoint64ReadWriter) Write(b []byte, start int, src color.Color, p ima
 		if skip == 1 {
 			skip = 0
 			i++
+
 			*addr &= 0xff00
-			*addr += uint16(b[i])
+			*addr |= uint16(b[i])
 			n++
 			i++
 		} else {
-			tail := *addr & 0x00ff
-			*addr = uint16(b[i]) >> 8
+			*addr &= 0x00ff
+			*addr |= uint16(b[i]) << 8
 			n++
 			i++
 
 			if i >= len(b) {
-				*addr += tail
 				return c, n
 			}
 
-			*addr += uint16(b[i])
+			*addr &= 0xff00
+			*addr |= uint16(b[i])
 			n++
 			i++
 		}

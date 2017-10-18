@@ -90,16 +90,16 @@ func Test_SimplePoint64ReadWriter_Write(t *testing.T) {
 		expectedColor  *color.RGBA64
 		expectedNumber int
 	}{
-		{[]byte{'a', 'b', 'c', 'd'}, 0, color.RGBA64{}, image.Point{}, &color.RGBA64{R: 'a'>>8 + 'b', G: 'c'>>8 + 'd'}, 4},
-		{[]byte{'a', 'b', 'c', 'd'}, 1, color.RGBA64{}, image.Point{}, &color.RGBA64{R: 'b', G: 'c'>>8 + 'd'}, 3},
-		{[]byte{'a', 'b', 'c', 'd'}, 2, color.RGBA64{R: 'f'}, image.Point{}, &color.RGBA64{'f', 'a'>>8 + 'b', 'c'>>8 + 'd', 0}, 4},
-		{[]byte{'a', 'b', 'c', 'd'}, 6, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'f', 'g', 'a'>>8 + 'b'}, 2},
+		{[]byte{'a', 'b', 'c', 'd'}, 0, color.RGBA64{}, image.Point{}, &color.RGBA64{R: 'a'<<8 + 'b', G: 'c'<<8 + 'd'}, 4},
+		{[]byte{'a', 'b', 'c', 'd'}, 1, color.RGBA64{}, image.Point{}, &color.RGBA64{R: 'b', G: 'c'<<8 + 'd'}, 3},
+		{[]byte{'a', 'b', 'c', 'd'}, 2, color.RGBA64{R: 'f'}, image.Point{}, &color.RGBA64{'f', 'a'<<8 + 'b', 'c'<<8 + 'd', 0}, 4},
+		{[]byte{'a', 'b', 'c', 'd'}, 6, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'f', 'g', 'a'<<8 + 'b'}, 2},
 		{[]byte{'a', 'b', 'c', 'd'}, 8, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'f', 'g', 'h'}, 0},
 		{[]byte{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'}, 0, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{},
-			&color.RGBA64{'a'>>8 + 'b', 'c'>>8 + 'd', 'e'>>8 + 'f', 'g'>>8 + 'h'}, 8},
-		{[]byte{'a'}, 0, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'a'>>8 + 'e', 'f', 'g', 'h'}, 1},
+			&color.RGBA64{'a'<<8 + 'b', 'c'<<8 + 'd', 'e'<<8 + 'f', 'g'<<8 + 'h'}, 8},
+		{[]byte{'a'}, 0, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'a'<<8 + 'e', 'f', 'g', 'h'}, 1},
 		{[]byte{0, 'a'}, 0, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'a', 'f', 'g', 'h'}, 2},
-		{[]byte{'i'}, 2, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'i'>>8 + 'f', 'g', 'h'}, 1},
+		{[]byte{'i'}, 2, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'i'<<8 + 'f', 'g', 'h'}, 1},
 	}
 
 	for i, test := range tests {
