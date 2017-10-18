@@ -137,3 +137,22 @@ func (SimplePoint64ReadWriter) Write(b []byte, start int, src color.Color, p ima
 func (SimplePoint64ReadWriter) Size(_ image.Point) int64 {
 	return SimplePoint64Capacity
 }
+
+type SmartPoint8ReadWriter struct{}
+
+const SmartPoint8Capacity = 1
+
+func (SmartPoint8ReadWriter) Read(start int, c color.Color, p image.Point) ([]byte, int) {
+	// TODO: Implement method
+	return []byte{}, 0
+}
+
+func (SmartPoint8ReadWriter) Write(b []byte, start int, src color.Color, p image.Point) (color.Color, int) {
+	// TODO: Implement method
+	return nil, 0
+}
+
+func (SmartPoint8ReadWriter) Size(_ image.Point) int64 {
+	// TODO: Implement method
+	return SmartPoint8Capacity
+}
