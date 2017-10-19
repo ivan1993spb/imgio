@@ -15,8 +15,7 @@ type Image struct {
 	prw PointReadWriter
 	mux sync.RWMutex
 
-	pointCursor uint64
-	byteCursor  int
+	byteCursor int
 }
 
 func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) *Image {
@@ -31,7 +30,6 @@ func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) 
 func (i *Image) Read(p []byte) (n int, err error) {
 	i.mux.RLock()
 	defer i.mux.RUnlock()
-	i.gen.Seek(i.pointCursor)
 
 	if !i.gen.Valid() {
 		return 0, io.EOF
@@ -57,7 +55,6 @@ func (i *Image) Read(p []byte) (n int, err error) {
 			copy(p[n:], buff[:nBytesRead])
 			n += nBytesRead
 			i.gen.Next()
-			i.pointCursor++
 			i.byteCursor = 0
 		} else {
 			end := nBytesRead - len(p) + n
@@ -82,7 +79,6 @@ func (i *Image) Write(p []byte) (n int, err error) {
 	i.mux.Lock()
 	defer i.mux.Unlock()
 
-	i.gen.Seek(i.pointCursor)
 	if !i.gen.Valid() {
 		return 0, ErrOverflow
 	}
@@ -100,7 +96,6 @@ func (i *Image) Write(p []byte) (n int, err error) {
 		color, writtenBytes := i.prw.Write(p, i.byteCursor, srcColor, point)
 		i.img.Set(point.X, point.Y, color)
 		i.gen.Next()
-		i.pointCursor++
 		n += writtenBytes
 		p = p[writtenBytes:]
 		if i.prw.Size(point) > int64(writtenBytes) {
@@ -117,6 +112,7 @@ func (i *Image) Seek(offset int64, whence int) (int64, error) {
 
 func (i *Image) Size() (size int64) {
 	i.gen.Rewind()
+	defer i.gen.Rewind()
 	for i.gen.Valid() {
 		point := i.gen.Current()
 		size += i.prw.Size(point)

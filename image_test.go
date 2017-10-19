@@ -206,7 +206,6 @@ func Test_Image_ReadWrite32_Hash(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, img.Size(), n)
 	img.gen.Rewind()
-	img.pointCursor = 0
 	img.byteCursor = 0
 	require.True(t, img.gen.Valid())
 	n, err = io.Copy(hasher, img)
@@ -236,7 +235,6 @@ func Test_Image_ReadWrite64_Hash(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, img.Size(), n)
 	img.gen.Rewind()
-	img.pointCursor = 0
 	img.byteCursor = 0
 	require.True(t, img.gen.Valid())
 	n, err = io.Copy(hasher, img)
