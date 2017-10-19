@@ -153,6 +153,71 @@ func (SmartPoint8ReadWriter) Write(b []byte, start int, src color.Color, p image
 }
 
 func (SmartPoint8ReadWriter) Size(_ image.Point) int64 {
-	// TODO: Implement method
 	return SmartPoint8Capacity
+}
+
+type GentlePoint16ReadWriter struct{}
+
+const GentlePoint16Capacity = 2
+
+func (GentlePoint16ReadWriter) Read(start int, c color.Color, p image.Point) ([]byte, int) {
+	if start >= GentlePoint16Capacity {
+		return []byte{}, 0
+	}
+
+	buff := make([]byte, GentlePoint16Capacity-start)
+	r, g, b, a := c.RGBA()
+	n := 0
+
+	if start == 0 {
+		buff[n] = byte(r) & 0x0f << 4
+		buff[n] |= byte(g) & 0x0f
+		n++
+	}
+
+	buff[n] = byte(b) & 0x0f << 4
+	buff[n] |= byte(a) & 0x0f
+	n++
+
+	return buff, n
+}
+
+func (GentlePoint16ReadWriter) Write(b []byte, start int, src color.Color, p image.Point) (color.Color, int) {
+	srcR, srcG, srcB, srcA := src.RGBA()
+	c := &color.RGBA{uint8(srcR), uint8(srcG), uint8(srcB), uint8(srcA)}
+
+	if len(b) == 0 {
+		return c, 0
+	}
+
+	if start >= GentlePoint16Capacity {
+		return c, 0
+	}
+
+	i := 0
+
+	if start == 0 {
+		c.R &= 0xf0
+		c.R |= b[i] & 0xf0 >> 4
+		c.G &= 0xf0
+		c.G |= b[i] & 0x0f
+		i++
+		c.B &= 0xf0
+		c.B |= b[i] & 0xf0 >> 4
+		c.A &= 0xf0
+		c.A |= b[i] & 0x0f
+		i++
+	} else if start == 1 {
+		c.B &= 0xf0
+		c.B |= b[i] & 0xf0 >> 4
+		c.A &= 0xf0
+		c.A |= b[i] & 0x0f
+		i++
+	}
+
+	return c, i
+}
+
+func (GentlePoint16ReadWriter) Size(_ image.Point) int64 {
+	return GentlePoint16Capacity
 }

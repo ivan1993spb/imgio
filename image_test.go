@@ -244,6 +244,35 @@ func Test_Image_ReadWrite64_Hash(t *testing.T) {
 	require.Equal(t, firstSum, secondSum)
 }
 
+func Test_Image_ReadWrite16_Hash(t *testing.T) {
+	img := &Image{
+		img: image.NewRGBA(image.Rect(0, 0, 100, 100)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 100, 100),
+			cursor: 0,
+		},
+		prw: GentlePoint16ReadWriter{},
+	}
+	hasher := md5.New()
+	buff := bytes.NewBuffer(nil)
+	n, err := buff.ReadFrom(io.TeeReader(io.LimitReader(rand.Reader, img.Size()), hasher))
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	firstSum := hasher.Sum(nil)
+	hasher.Reset()
+	n, err = buff.WriteTo(img)
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	img.gen.Rewind()
+	img.byteCursor = 0
+	require.True(t, img.gen.Valid())
+	n, err = io.Copy(hasher, img)
+	require.Nil(t, err)
+	require.Equal(t, img.Size(), n)
+	secondSum := hasher.Sum(nil)
+	require.Equal(t, firstSum, secondSum)
+}
+
 func WriteBytesToImage64(x0, y0, x1, y1 int) (int64, error) {
 	img := &Image{
 		img: image.NewRGBA64(image.Rect(x0, y0, x1, y1)),
@@ -280,6 +309,27 @@ func WriteBytesToImage32(x0, y0, x1, y1 int) (int64, error) {
 func Benchmark_WriteBytesToImage32(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		_, err := WriteBytesToImage32(0, 0, 1000, 1000)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func WriteBytesToImage16(x0, y0, x1, y1 int) (int64, error) {
+	img := &Image{
+		img: image.NewRGBA(image.Rect(x0, y0, x1, y1)),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(x0, y0, x1, y1),
+			cursor: 0,
+		},
+		prw: GentlePoint16ReadWriter{},
+	}
+	return io.CopyN(img, rand.Reader, img.Size())
+}
+
+func Benchmark_WriteBytesToImage16(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		_, err := WriteBytesToImage16(0, 0, 1000, 1000)
 		if err != nil {
 			b.Fatal(err)
 		}

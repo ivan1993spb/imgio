@@ -48,6 +48,7 @@ func Test_SimplePoint32ReadWriter_Write(t *testing.T) {
 		{[]byte{'a', 'b', 'c', 'd', 'e', 'f'}, 0, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'a', 'b', 'c', 'd'}, 4},
 		{[]byte{'a'}, 0, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'a', 'f', 'g', 'h'}, 1},
 		{[]byte{'i'}, 2, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'e', 'f', 'i', 'h'}, 1},
+		{[]byte{}, 0, color.RGBA{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA{'e', 'f', 'g', 'h'}, 0},
 	}
 
 	for i, test := range tests {
@@ -100,10 +101,69 @@ func Test_SimplePoint64ReadWriter_Write(t *testing.T) {
 		{[]byte{'a'}, 0, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'a'<<8 + 'e', 'f', 'g', 'h'}, 1},
 		{[]byte{0, 'a'}, 0, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'a', 'f', 'g', 'h'}, 2},
 		{[]byte{'i'}, 2, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'i'<<8 + 'f', 'g', 'h'}, 1},
+		{[]byte{}, 2, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'f', 'g', 'h'}, 0},
+		{[]byte{}, 0, color.RGBA64{'e', 'f', 'g', 'h'}, image.Point{}, &color.RGBA64{'e', 'f', 'g', 'h'}, 0},
 	}
 
 	for i, test := range tests {
 		c, n := SimplePoint64ReadWriter{}.Write(test.buff, test.startOn, test.color, test.point)
+		require.Equal(t, test.expectedNumber, n, "Test index %d", i)
+		require.Equal(t, test.expectedColor, c, "Test index %d", i)
+	}
+}
+
+func Test_GentlePoint16ReadWriter_Read(t *testing.T) {
+	tests := []struct {
+		startOn int
+		color   color.RGBA
+		point   image.Point
+
+		expectedBuff   []byte
+		expectedNumber int
+	}{
+		{0, color.RGBA{
+			'x'&0xf0 | 'a'&0xf0>>4, 'x'&0xf0 | 'a'&0x0f,
+			'x'&0xf0 | 'b'&0xf0>>4, 'x'&0xf0 | 'b'&0x0f,
+		}, image.Point{}, []byte{'a', 'b'}, 2},
+		{1, color.RGBA{R: 'x'&0xf0 + 'a'&0xf0>>4, G: 'x'&0xf0 + 'a'&0x0f}, image.Point{}, []byte{0}, 1},
+		{1, color.RGBA{
+			'x'&0xf0 | 'a'&0xf0>>4, 'x'&0xf0 | 'a'&0x0f,
+			'x'&0xf0 | 'b'&0xf0>>4, 'x'&0xf0 | 'b'&0x0f,
+		}, image.Point{}, []byte{'b'}, 1},
+		{2, color.RGBA{}, image.Point{}, []byte{}, 0},
+	}
+
+	for i, test := range tests {
+		b, n := GentlePoint16ReadWriter{}.Read(test.startOn, test.color, test.point)
+		require.Equal(t, test.expectedNumber, n, "Test index %d", i)
+		require.Equal(t, test.expectedBuff, b, "Test index %d", i)
+	}
+}
+
+func Test_GentlePoint16ReadWriter_Write(t *testing.T) {
+	tests := []struct {
+		buff    []byte
+		startOn int
+		color   color.RGBA
+		point   image.Point
+
+		expectedColor  *color.RGBA
+		expectedNumber int
+	}{
+		{[]byte{'a', 'b', 'c', 'd'}, 0, color.RGBA{}, image.Point{}, &color.RGBA{
+			'a' & 0xf0 >> 4, 'a' & 0x0f,
+			'b' & 0xf0 >> 4, 'b' & 0x0f,
+		}, 2},
+		{[]byte{'a', 'b', 'c', 'd'}, 1, color.RGBA{}, image.Point{}, &color.RGBA{0, 0, 'a' & 0xf0 >> 4, 'a' & 0x0f}, 1},
+		{[]byte{'a', 'b', 'c', 'd'}, 2, color.RGBA{}, image.Point{}, &color.RGBA{}, 0},
+		{[]byte{}, 2, color.RGBA{}, image.Point{}, &color.RGBA{}, 0},
+		{[]byte{}, 1, color.RGBA{}, image.Point{}, &color.RGBA{}, 0},
+		{[]byte{}, 0, color.RGBA{}, image.Point{}, &color.RGBA{}, 0},
+		{[]byte{}, 0, color.RGBA{'a', 'b', 'c', 'd'}, image.Point{}, &color.RGBA{'a', 'b', 'c', 'd'}, 0},
+	}
+
+	for i, test := range tests {
+		c, n := GentlePoint16ReadWriter{}.Write(test.buff, test.startOn, test.color, test.point)
 		require.Equal(t, test.expectedNumber, n, "Test index %d", i)
 		require.Equal(t, test.expectedColor, c, "Test index %d", i)
 	}
