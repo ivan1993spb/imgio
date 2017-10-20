@@ -52,15 +52,35 @@ func Test_SimplePointsSequenceGenerator_Current_ReturnsValidCoordinatesByIndex(t
 	}
 
 	tests := map[uint64]image.Point{
-		0: image.Point{-5, -5},
-		4: image.Point{-1, -5},
-		6: image.Point{-5, -4},
-		9: image.Point{-2, -4},
+		0: {-5, -5},
+		4: {-1, -5},
+		6: {-5, -4},
+		9: {-2, -4},
 	}
 
 	for cursor, point := range tests {
 		g.cursor = cursor
 		require.Equal(t, point, g.Current())
+	}
+}
+
+func Test_SimplePointsSequenceGenerator_Current_ReturnsValidCoordinatesByIndex_NoSquare(t *testing.T) {
+	g := &SimplePointsSequenceGenerator{
+		rect:   image.Rect(0, 0, 30, 100),
+		cursor: 0,
+	}
+
+	tests := map[uint64]image.Point{
+		0:  {0, 0},
+		4:  {4, 0},
+		29: {29, 0},
+		30: {0, 1},
+		31: {1, 1},
+	}
+
+	for cursor, point := range tests {
+		g.cursor = cursor
+		require.Equal(t, point, g.Current(), "Error: cursor=%d", cursor)
 	}
 }
 
