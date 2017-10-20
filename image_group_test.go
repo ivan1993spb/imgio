@@ -77,6 +77,14 @@ func Test_ImageGroup_ReadWriteHash_ManyImage(t *testing.T) {
 				},
 				prw: SimplePoint32ReadWriter{},
 			},
+			{
+				img: image.NewRGBA64(image.Rect(0, 0, 100, 52)),
+				gen: &SimplePointsSequenceGenerator{
+					rect:   image.Rect(0, 0, 100, 52),
+					cursor: 0,
+				},
+				prw: SimplePoint64ReadWriter{},
+			},
 		},
 	}
 	hasher := md5.New()
