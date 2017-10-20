@@ -28,8 +28,8 @@ func NewSimplePointsSequenceGenerator(rect image.Rectangle) *SimplePointsSequenc
 func (spsg *SimplePointsSequenceGenerator) Current() image.Point {
 	p := image.Point{}
 	cursor := atomic.LoadUint64(&spsg.cursor)
-	p.X = int(cursor % uint64(spsg.rect.Size().Y))
-	p.Y = int((cursor - uint64(p.X)) / uint64(spsg.rect.Size().Y))
+	p.X = int(cursor % uint64(spsg.rect.Size().X))
+	p.Y = int((cursor - uint64(p.X)) / uint64(spsg.rect.Size().X))
 	return spsg.rect.Min.Add(p)
 }
 
