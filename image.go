@@ -9,6 +9,10 @@ import (
 	"sync"
 )
 
+type Image interface {
+	io.ReadWriteSeeker
+}
+
 type rwImage struct {
 	img draw.Image
 	gen PointsSequenceGenerator
@@ -48,8 +52,7 @@ func (i *rwImage) Read(p []byte) (n int, err error) {
 		}
 
 		point := i.gen.Current()
-		color := i.img.At(point.X, point.Y)
-		buff, nBytesRead := i.prw.Read(i.byteCursor, color, point)
+		buff, nBytesRead := i.prw.Read(i.byteCursor, i.img.At(point.X, point.Y), point)
 
 		if len(p)-n >= nBytesRead {
 			copy(p[n:], buff[:nBytesRead])
@@ -93,8 +96,8 @@ func (i *rwImage) Write(p []byte) (n int, err error) {
 
 		point := i.gen.Current()
 		srcColor := i.img.At(point.X, point.Y)
-		color, writtenBytes := i.prw.Write(p, i.byteCursor, srcColor, point)
-		i.img.Set(point.X, point.Y, color)
+		c, writtenBytes := i.prw.Write(p, i.byteCursor, srcColor, point)
+		i.img.Set(point.X, point.Y, c)
 		i.gen.Next()
 		n += writtenBytes
 		p = p[writtenBytes:]
