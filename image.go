@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-type Image struct {
+type rwImage struct {
 	img draw.Image
 	gen PointsSequenceGenerator
 	prw PointReadWriter
@@ -18,8 +18,8 @@ type Image struct {
 	byteCursor int
 }
 
-func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) *Image {
-	return &Image{
+func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) *rwImage {
+	return &rwImage{
 		img: img,
 		gen: gen,
 		prw: prw,
@@ -27,7 +27,7 @@ func NewImage(img draw.Image, gen PointsSequenceGenerator, prw PointReadWriter) 
 }
 
 // Read implements io.Reader interface
-func (i *Image) Read(p []byte) (n int, err error) {
+func (i *rwImage) Read(p []byte) (n int, err error) {
 	i.mux.RLock()
 	defer i.mux.RUnlock()
 
@@ -71,7 +71,7 @@ func (i *Image) Read(p []byte) (n int, err error) {
 var ErrOverflow = errors.New("Overflow")
 
 // Write implements io.Writer interface
-func (i *Image) Write(p []byte) (n int, err error) {
+func (i *rwImage) Write(p []byte) (n int, err error) {
 	if len(p) == 0 {
 		return 0, nil
 	}
@@ -106,11 +106,11 @@ func (i *Image) Write(p []byte) (n int, err error) {
 	return
 }
 
-func (i *Image) Seek(offset int64, whence int) (int64, error) {
+func (i *rwImage) Seek(offset int64, whence int) (int64, error) {
 	return 0, nil
 }
 
-func (i *Image) Size() (size int64) {
+func (i *rwImage) Size() (size int64) {
 	i.gen.Rewind()
 	defer i.gen.Rewind()
 	for i.gen.Valid() {
@@ -122,16 +122,16 @@ func (i *Image) Size() (size int64) {
 }
 
 // ColorModel implements image.Image interface
-func (i *Image) ColorModel() color.Model {
+func (i *rwImage) ColorModel() color.Model {
 	return i.img.ColorModel()
 }
 
 // Bounds implements image.Image interface
-func (i *Image) Bounds() image.Rectangle {
+func (i *rwImage) Bounds() image.Rectangle {
 	return i.img.Bounds()
 }
 
 // At  implements image.Image interface
-func (i *Image) At(x, y int) color.Color {
+func (i *rwImage) At(x, y int) color.Color {
 	return i.img.At(x, y)
 }

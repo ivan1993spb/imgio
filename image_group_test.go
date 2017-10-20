@@ -13,7 +13,7 @@ import (
 
 func Test_ImageGroup_ReadWriteHash_OneImage(t *testing.T) {
 	group := &ImageGroup{
-		images: []*Image{
+		images: []*rwImage{
 			{
 				img: image.NewRGBA(image.Rect(0, 0, 100, 100)),
 				gen: &SimplePointsSequenceGenerator{
@@ -44,7 +44,7 @@ func Test_ImageGroup_ReadWriteHash_OneImage(t *testing.T) {
 
 func Test_ImageGroup_ReadWriteHash_ManyImage(t *testing.T) {
 	group := &ImageGroup{
-		images: []*Image{
+		images: []*rwImage{
 			{
 				img: image.NewRGBA(image.Rect(0, 0, 100, 100)),
 				gen: &SimplePointsSequenceGenerator{

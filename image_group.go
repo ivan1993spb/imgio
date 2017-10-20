@@ -5,12 +5,12 @@ import (
 )
 
 type ImageGroup struct {
-	images []*Image
+	images []*rwImage
 	cursor int
 }
 
-func NewImageGroup(images ...*Image) *ImageGroup {
-	i := make([]*Image, len(images))
+func NewImageGroup(images ...*rwImage) *ImageGroup {
+	i := make([]*rwImage, len(images))
 	copy(i, images)
 	return &ImageGroup{
 		images: i,

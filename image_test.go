@@ -13,7 +13,7 @@ import (
 )
 
 func Test_Image_Write_UsePoint32(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 5, 5)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 5, 5),
@@ -40,7 +40,7 @@ func Test_Image_Write_UsePoint32(t *testing.T) {
 }
 
 func Test_Image_Write_UsePoint32HandleErrOverflowOnePoint(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 1, 1)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 1, 1),
@@ -55,7 +55,7 @@ func Test_Image_Write_UsePoint32HandleErrOverflowOnePoint(t *testing.T) {
 }
 
 func Test_Image_Write_UsePoint32HandleErrOverflowManyPoints(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 10, 10)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 10, 10),
@@ -76,7 +76,7 @@ func Test_Image_Write_UsePoint32HandleErrOverflowManyPoints(t *testing.T) {
 }
 
 func Test_Image_Write_UsePoint64(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA64(image.Rect(0, 0, 5, 5)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 5, 5),
@@ -103,7 +103,7 @@ func Test_Image_Write_UsePoint64(t *testing.T) {
 }
 
 func Test_Image_Write_UsePoint64_ErrOverflowOnePoint(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA64(image.Rect(0, 0, 1, 1)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 1, 1),
@@ -118,7 +118,7 @@ func Test_Image_Write_UsePoint64_ErrOverflowOnePoint(t *testing.T) {
 }
 
 func Test_Image_Write_UsePoint64HandleErrOverflowManyPoints(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA64(image.Rect(0, 0, 10, 10)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 10, 10),
@@ -139,7 +139,7 @@ func Test_Image_Write_UsePoint64HandleErrOverflowManyPoints(t *testing.T) {
 }
 
 func Test_Image_Read_UsePoint32(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 5, 5)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 5, 5),
@@ -161,7 +161,7 @@ func Test_Image_Read_UsePoint32(t *testing.T) {
 }
 
 func Test_Image_Read_UsePoint64(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA64(image.Rect(0, 0, 5, 5)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 5, 5),
@@ -187,7 +187,7 @@ func Test_Image_Read_UsePoint64(t *testing.T) {
 }
 
 func Test_Image_ReadWrite32_Hash(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 100, 100)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 100, 100),
@@ -216,7 +216,7 @@ func Test_Image_ReadWrite32_Hash(t *testing.T) {
 }
 
 func Test_Image_ReadWrite32_Hash_NoSquare(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 100, 11)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 100, 11),
@@ -245,7 +245,7 @@ func Test_Image_ReadWrite32_Hash_NoSquare(t *testing.T) {
 }
 
 func Test_Image_ReadWrite64_Hash(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA64(image.Rect(0, 0, 100, 100)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 100, 100),
@@ -274,7 +274,7 @@ func Test_Image_ReadWrite64_Hash(t *testing.T) {
 }
 
 func Test_Image_ReadWrite64_Hash_NoSquare(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA64(image.Rect(0, 0, 25, 100)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 25, 100),
@@ -303,7 +303,7 @@ func Test_Image_ReadWrite64_Hash_NoSquare(t *testing.T) {
 }
 
 func Test_Image_ReadWrite16_Hash(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 100, 100)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 100, 100),
@@ -332,7 +332,7 @@ func Test_Image_ReadWrite16_Hash(t *testing.T) {
 }
 
 func Test_Image_ReadWrite16_Hash_NoSquare(t *testing.T) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(0, 0, 12, 100)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(0, 0, 12, 100),
@@ -361,7 +361,7 @@ func Test_Image_ReadWrite16_Hash_NoSquare(t *testing.T) {
 }
 
 func WriteBytesToImage64(x0, y0, x1, y1 int) (int64, error) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA64(image.Rect(x0, y0, x1, y1)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(x0, y0, x1, y1),
@@ -382,7 +382,7 @@ func Benchmark_WriteBytesToImage64(b *testing.B) {
 }
 
 func WriteBytesToImage32(x0, y0, x1, y1 int) (int64, error) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(x0, y0, x1, y1)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(x0, y0, x1, y1),
@@ -403,7 +403,7 @@ func Benchmark_WriteBytesToImage32(b *testing.B) {
 }
 
 func WriteBytesToImage16(x0, y0, x1, y1 int) (int64, error) {
-	img := &Image{
+	img := &rwImage{
 		img: image.NewRGBA(image.Rect(x0, y0, x1, y1)),
 		gen: &SimplePointsSequenceGenerator{
 			rect:   image.Rect(x0, y0, x1, y1),
