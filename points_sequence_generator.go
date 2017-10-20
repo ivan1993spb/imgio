@@ -48,3 +48,28 @@ func (spsg *SimplePointsSequenceGenerator) Valid() bool {
 func (spsg *SimplePointsSequenceGenerator) Seek(offset uint64) {
 	atomic.StoreUint64(&spsg.cursor, offset)
 }
+
+type RandPointsSequenceGenerator struct {
+}
+
+func (rpsg *RandPointsSequenceGenerator) Current() image.Point {
+	// TODO: Implement method.
+	return image.Point{}
+}
+
+func (rpsg *RandPointsSequenceGenerator) Next() {
+	// TODO: Implement method.
+}
+
+func (rpsg *RandPointsSequenceGenerator) Rewind() {
+	// TODO: Implement method.
+}
+
+func (rpsg *RandPointsSequenceGenerator) Valid() bool {
+	// TODO: Implement method.
+	return false
+}
+
+func (rpsg *RandPointsSequenceGenerator) Seek(offset uint64) {
+	// TODO: Implement method.
+}
