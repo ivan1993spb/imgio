@@ -3,3 +3,4 @@ go:
   - 1.6
   - master
   - tip
+script: go list ./... | grep -v vendor | xargs go test -v -bench=.
