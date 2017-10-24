@@ -9,7 +9,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"gopkg.in/stretchr/testify.v1/require"
 )
 
 func Test_Image_Write_UsePoint32(t *testing.T) {

@@ -3,7 +3,7 @@ package main
 import (
 	"image"
 	"image/draw"
-	"image/png"
+	"image/jpeg"
 	"io"
 	"log"
 	"os"
@@ -31,7 +31,7 @@ func main() {
 				n, err := io.Copy(img, os.Stdin)
 				log.Println(n, err)
 
-				err = png.Encode(os.Stdout, img)
+				err = jpeg.Encode(os.Stdout, img, &jpeg.Options{})
 				log.Println(err)
 				return nil
 			},
@@ -39,7 +39,7 @@ func main() {
 		{
 			Name: "decode",
 			Action: func(c *cli.Context) error {
-				i, err := png.Decode(os.Stdin)
+				i, err := jpeg.Decode(os.Stdin)
 				log.Println(err)
 
 				cimg := image.NewRGBA(i.Bounds())

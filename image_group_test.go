@@ -8,7 +8,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"gopkg.in/stretchr/testify.v1/require"
 )
 
 func Test_ImageGroup_ReadWriteHash_OneImage(t *testing.T) {

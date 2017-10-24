@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"gopkg.in/stretchr/testify.v1/require"
 )
 
 func Test_SimplePoint32ReadWriter_Read(t *testing.T) {
