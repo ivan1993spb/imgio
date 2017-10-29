@@ -3,6 +3,7 @@ package imgio
 import (
 	"crypto/rand"
 	"image"
+	"io"
 	"testing"
 
 	"gopkg.in/stretchr/testify.v1/require"
@@ -75,4 +76,57 @@ func Test_ImageReadWriterYCbCr_Write_WriteUsingPointReadWriterYCbCrSimple_ManyPo
 	n, err = imgrw.Write(buff)
 	require.EqualValues(t, size, n)
 	require.Equal(t, ErrImageReadWriterYCbCrOverflow, err)
+}
+
+func Test_ImageReadWriterYCbCr_Read_ReadUsingPointReadWriterYCbCrSimple(t *testing.T) {
+	imgrw := &ImageReadWriterYCbCr{
+		img: image.NewYCbCr(image.Rect(0, 0, 5, 4), image.YCbCrSubsampleRatio444),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 5, 4),
+			cursor: 0,
+		},
+		prw: PointReadWriterYCbCrSimple{},
+	}
+
+	imgrw.img.Y[imgrw.img.YOffset(0, 0)] = 0
+	imgrw.img.Cb[imgrw.img.COffset(0, 0)] = 't'
+	imgrw.img.Cr[imgrw.img.COffset(0, 0)] = 'e'
+	imgrw.img.Y[imgrw.img.YOffset(1, 0)] = 's'
+	imgrw.img.Cb[imgrw.img.COffset(1, 0)] = 't'
+	imgrw.img.Cr[imgrw.img.COffset(1, 0)] = 'i'
+	imgrw.img.Y[imgrw.img.YOffset(2, 0)] = 'n'
+	imgrw.img.Cb[imgrw.img.COffset(2, 0)] = 'g'
+	imgrw.img.Cr[imgrw.img.COffset(2, 0)] = 0
+
+	size := 9
+	buff := make([]byte, size)
+	n, err := imgrw.Read(buff)
+	require.Nil(t, err)
+	require.EqualValues(t, size, n)
+	require.Equal(t, []byte{0, 't', 'e', 's', 't', 'i', 'n', 'g', 0}, buff)
+}
+
+func Test_ImageReadWriterYCbCr_Read_ReadUsingPointReadWriterYCbCrSimple_ExpectsEOF(t *testing.T) {
+	imgrw := &ImageReadWriterYCbCr{
+		img: image.NewYCbCr(image.Rect(0, 0, 2, 1), image.YCbCrSubsampleRatio444),
+		gen: &SimplePointsSequenceGenerator{
+			rect:   image.Rect(0, 0, 2, 1),
+			cursor: 0,
+		},
+		prw: PointReadWriterYCbCrSimple{},
+	}
+
+	imgrw.img.Y[imgrw.img.YOffset(0, 0)] = 'i'
+	imgrw.img.Cb[imgrw.img.COffset(0, 0)] = 't'
+	imgrw.img.Cr[imgrw.img.COffset(0, 0)] = 'e'
+	imgrw.img.Y[imgrw.img.YOffset(1, 0)] = 's'
+	imgrw.img.Cb[imgrw.img.COffset(1, 0)] = 't'
+	imgrw.img.Cr[imgrw.img.COffset(1, 0)] = 'i'
+
+	size := 6
+	buff := make([]byte, size)
+	n, err := imgrw.Read(buff)
+	require.Equal(t, io.EOF, err)
+	require.EqualValues(t, size, n)
+	require.Equal(t, []byte{'i', 't', 'e', 's', 't', 'i'}, buff)
 }
