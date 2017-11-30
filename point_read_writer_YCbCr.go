@@ -11,9 +11,11 @@ type PointReadWriterYCbCr interface {
 	Size(p image.Point) int64
 }
 
-type PointReadWriterYCbCrSimple struct{}
+type PointReadWriterYCbCrSimple struct {
+	Y uint8
+}
 
-const PointReadWriterYCbCrSimpleCapacity = 3
+const PointReadWriterYCbCrSimpleCapacity = 1
 
 func (PointReadWriterYCbCrSimple) Read(start int, c color.YCbCr, p image.Point) ([]byte, int) {
 	if start >= PointReadWriterYCbCrSimpleCapacity {
@@ -21,19 +23,21 @@ func (PointReadWriterYCbCrSimple) Read(start int, c color.YCbCr, p image.Point) 
 	}
 
 	dst := make([]byte, PointReadWriterYCbCrSimpleCapacity-start)
-	src := []byte{c.Y, c.Cb, c.Cr}
+	src := []byte{c.Cb, c.Cr}
 
 	return dst, copy(dst, src[start:])
 }
 
-func (PointReadWriterYCbCrSimple) Write(b []byte, start int, src color.YCbCr, p image.Point) (color.YCbCr, int) {
+func (prw PointReadWriterYCbCrSimple) Write(b []byte, start int, src color.YCbCr, p image.Point) (color.YCbCr, int) {
 	dst := color.YCbCr{src.Y, src.Cb, src.Cr}
 
 	if start >= SimplePoint32Capacity {
 		return dst, 0
 	}
 
-	addrs := []*uint8{&dst.Y, &dst.Cb, &dst.Cr}
+	dst.Y = prw.Y
+
+	addrs := []*uint8{&dst.Cb, &dst.Cr}
 
 	n := 0
 	for i, addr := range addrs[start:] {

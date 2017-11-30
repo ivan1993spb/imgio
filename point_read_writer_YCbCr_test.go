@@ -17,9 +17,9 @@ func Test_PointReadWriterYCbCrSimple_Read(t *testing.T) {
 		expectedBuff   []byte
 		expectedNumber int
 	}{
-		{0, color.YCbCr{'a', 'b', 'c'}, image.Point{}, []byte{'a', 'b', 'c'}, 3},
-		{1, color.YCbCr{Y: 'a'}, image.Point{}, []byte{0, 0}, 2},
-		{1, color.YCbCr{Cb: 'a', Cr: 'b'}, image.Point{}, []byte{'a', 'b'}, 2},
+		{0, color.YCbCr{0xff, 'b', 'c'}, image.Point{}, []byte{'b', 'c'}, 2},
+		{1, color.YCbCr{Y: 'a'}, image.Point{}, []byte{0}, 1},
+		{1, color.YCbCr{Cb: 'a', Cr: 'b'}, image.Point{}, []byte{'b'}, 1},
 		{3, color.YCbCr{'e', 'f', 'g'}, image.Point{}, []byte{}, 0},
 		{4, color.YCbCr{'e', 'f', 'g'}, image.Point{}, []byte{}, 0},
 	}
@@ -41,15 +41,14 @@ func Test_PointReadWriterYCbCrSimple_Write(t *testing.T) {
 		expectedColor  color.YCbCr
 		expectedNumber int
 	}{
-		{[]byte{'a', 'b', 'c', 'd'}, 0, color.YCbCr{}, image.Point{}, color.YCbCr{'a', 'b', 'c'}, 3},
-		{[]byte{'a', 'b', 'c', 'd'}, 1, color.YCbCr{Y: 'a'}, image.Point{}, color.YCbCr{'a', 'a', 'b'}, 2},
-		{[]byte{'a', 'b', 'c', 'd'}, 2, color.YCbCr{Cb: 'a'}, image.Point{}, color.YCbCr{0, 'a', 'a'}, 1},
-		{[]byte{'a', 'b', 'c', 'd'}, 2, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{'e', 'f', 'a'}, 1},
+		{[]byte{'a', 'b', 'c', 'd'}, 0, color.YCbCr{}, image.Point{}, color.YCbCr{0xff, 'a', 'b'}, 2},
+		{[]byte{'a', 'b', 'c', 'd'}, 1, color.YCbCr{Y: 'a'}, image.Point{}, color.YCbCr{0xff, 0, 'a'}, 1},
+		{[]byte{'a', 'b', 'c', 'd'}, 2, color.YCbCr{Cb: 'a'}, image.Point{}, color.YCbCr{Cb: 'a'}, 0},
 		{[]byte{'a', 'b', 'c', 'd'}, 4, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{'e', 'f', 'g'}, 0},
-		{[]byte{'a', 'b', 'c', 'd', 'e', 'f'}, 0, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{'a', 'b', 'c'}, 3},
-		{[]byte{'a'}, 0, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{'a', 'f', 'g'}, 1},
-		{[]byte{'i'}, 2, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{'e', 'f', 'i'}, 1},
-		{[]byte{}, 0, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{'e', 'f', 'g'}, 0},
+		{[]byte{'a', 'b', 'c', 'd', 'e', 'f'}, 0, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{0xff, 'b', 'c'}, 3},
+		{[]byte{'a'}, 0, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{0xff, 'f', 'g'}, 1},
+		{[]byte{'i'}, 2, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{0xff, 'f', 'i'}, 1},
+		{[]byte{}, 0, color.YCbCr{'e', 'f', 'g'}, image.Point{}, color.YCbCr{0xff, 'f', 'g'}, 0},
 	}
 
 	for i, test := range tests {

@@ -26,16 +26,16 @@ func Test_ImageReadWriterYCbCr_Write_WriteUsingPointReadWriterYCbCrSimple(t *tes
 	color01 := imgrw.img.YCbCrAt(0, 0)
 	color02 := imgrw.img.YCbCrAt(1, 0)
 	color03 := imgrw.img.YCbCrAt(2, 0)
+	color04 := imgrw.img.YCbCrAt(3, 0)
 
-	require.Equal(t, byte('t'), color01.Y)
-	require.Equal(t, byte('e'), color01.Cb)
-	require.Equal(t, byte('s'), color01.Cr)
-	require.Equal(t, byte('t'), color02.Y)
-	require.Equal(t, byte('i'), color02.Cb)
-	require.Equal(t, byte('n'), color02.Cr)
-	require.Equal(t, byte('g'), color03.Y)
-	require.Equal(t, byte(0), color03.Cb)
-	require.Equal(t, byte(0), color03.Cr)
+	require.Equal(t, byte('t'), color01.Cb)
+	require.Equal(t, byte('e'), color01.Cr)
+	require.Equal(t, byte('s'), color02.Cb)
+	require.Equal(t, byte('t'), color02.Cr)
+	require.Equal(t, byte('i'), color03.Cb)
+	require.Equal(t, byte('n'), color03.Cr)
+	require.Equal(t, byte('g'), color04.Cb)
+	require.Equal(t, byte(0), color04.Cr)
 }
 
 func Test_ImageReadWriterYCbCr_Write_WriteUsingPointReadWriterYCbCrSimple_OnePoint_ExpectsOverflow(t *testing.T) {
@@ -49,7 +49,7 @@ func Test_ImageReadWriterYCbCr_Write_WriteUsingPointReadWriterYCbCrSimple_OnePoi
 	}
 
 	n, err := imgrw.Write([]byte("testing"))
-	require.Equal(t, 3, n)
+	require.Equal(t, PointReadWriterYCbCrSimpleCapacity, n)
 	require.Equal(t, ErrImageReadWriterYCbCrOverflow, err)
 }
 
@@ -88,22 +88,19 @@ func Test_ImageReadWriterYCbCr_Read_ReadUsingPointReadWriterYCbCrSimple(t *testi
 		prw: PointReadWriterYCbCrSimple{},
 	}
 
-	imgrw.img.Y[imgrw.img.YOffset(0, 0)] = 0
 	imgrw.img.Cb[imgrw.img.COffset(0, 0)] = 't'
 	imgrw.img.Cr[imgrw.img.COffset(0, 0)] = 'e'
-	imgrw.img.Y[imgrw.img.YOffset(1, 0)] = 's'
 	imgrw.img.Cb[imgrw.img.COffset(1, 0)] = 't'
 	imgrw.img.Cr[imgrw.img.COffset(1, 0)] = 'i'
-	imgrw.img.Y[imgrw.img.YOffset(2, 0)] = 'n'
 	imgrw.img.Cb[imgrw.img.COffset(2, 0)] = 'g'
 	imgrw.img.Cr[imgrw.img.COffset(2, 0)] = 0
 
-	size := 9
+	size := 6
 	buff := make([]byte, size)
 	n, err := imgrw.Read(buff)
 	require.Nil(t, err)
 	require.EqualValues(t, size, n)
-	require.Equal(t, []byte{0, 't', 'e', 's', 't', 'i', 'n', 'g', 0}, buff)
+	require.Equal(t, []byte{'t', 'e', 't', 'i', 'g', 0}, buff)
 }
 
 func Test_ImageReadWriterYCbCr_Read_ReadUsingPointReadWriterYCbCrSimple_ExpectsEOF(t *testing.T) {
@@ -116,17 +113,15 @@ func Test_ImageReadWriterYCbCr_Read_ReadUsingPointReadWriterYCbCrSimple_ExpectsE
 		prw: PointReadWriterYCbCrSimple{},
 	}
 
-	imgrw.img.Y[imgrw.img.YOffset(0, 0)] = 'i'
 	imgrw.img.Cb[imgrw.img.COffset(0, 0)] = 't'
 	imgrw.img.Cr[imgrw.img.COffset(0, 0)] = 'e'
-	imgrw.img.Y[imgrw.img.YOffset(1, 0)] = 's'
 	imgrw.img.Cb[imgrw.img.COffset(1, 0)] = 't'
 	imgrw.img.Cr[imgrw.img.COffset(1, 0)] = 'i'
 
-	size := 6
+	size := 4
 	buff := make([]byte, size)
 	n, err := imgrw.Read(buff)
 	require.Equal(t, io.EOF, err)
 	require.EqualValues(t, size, n)
-	require.Equal(t, []byte{'i', 't', 'e', 's', 't', 'i'}, buff)
+	require.Equal(t, []byte{'t', 'e', 't', 'i'}, buff)
 }
